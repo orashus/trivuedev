@@ -50,15 +50,38 @@ detect_arch() {
   esac
 }
 
+curl_github() {
+  # GitHub rejects or rate-limits clients without a User-Agent.
+  curl -fsSL --retry 3 --retry-delay 1 \
+    -H "User-Agent: trivuedev-install" \
+    "$@"
+}
+
+extract_tag_name() {
+  sed -n 's/.*"tag_name":[[:space:]]*"\([^"]*\)".*/\1/p' | head -n 1
+}
+
 latest_version() {
   need_cmd curl
-  # Prefer the GitHub API; fall back to Releases "latest" redirect.
-  if tag="$(curl -fsSL "https://api.github.com/repos/${REPO}/releases/latest" | sed -n 's/.*"tag_name":[[:space:]]*"\([^"]*\)".*/\1/p' | head -n 1)" \
-    && [ -n "$tag" ]; then
+  tag=""
+
+  # github.com JSON is not the REST API and is not subject to api.github.com rate limits.
+  tag="$(curl_github -H "Accept: application/json" "${BASE_URL}/latest" | extract_tag_name)" || tag=""
+  if [ -n "$tag" ]; then
     printf '%s\n' "$tag"
     return 0
   fi
-  loc="$(curl -fsSI -o /dev/null -w '%{url_effective}' "${BASE_URL}/latest")" || err "could not resolve latest release"
+
+  tag="$(curl_github -H "Accept: application/vnd.github+json" \
+    "https://api.github.com/repos/${REPO}/releases/latest" 2>/dev/null | extract_tag_name)" || tag=""
+  if [ -n "$tag" ]; then
+    printf '%s\n' "$tag"
+    return 0
+  fi
+
+  # Follow redirects (GET, not HEAD) so url_effective is .../releases/tag/vX.Y.Z
+  loc="$(curl_github -o /dev/null -w '%{url_effective}' "${BASE_URL}/latest")" \
+    || err "could not resolve latest release"
   tag="$(printf '%s\n' "$loc" | sed -n 's|.*/tag/\([^/]*\)$|\1|p')"
   [ -n "$tag" ] || err "could not resolve latest release tag"
   printf '%s\n' "$tag"

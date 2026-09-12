@@ -29,7 +29,25 @@ function Get-Version {
         if (-not $v.StartsWith("v")) { $v = "v$v" }
         return $v
     }
-    $release = Invoke-RestMethod -Uri "https://api.github.com/repos/$Repo/releases/latest"
+    $headers = @{
+        "User-Agent" = "trivuedev-install"
+        "Accept"     = "application/json"
+    }
+    try {
+        # github.com JSON is not the REST API and is not subject to api.github.com rate limits.
+        $release = Invoke-RestMethod -Uri "$BaseUrl/latest" -Headers $headers
+        if ($release.tag_name) {
+            return $release.tag_name
+        }
+    } catch {
+        # Fall through to the REST API.
+    }
+
+    $apiHeaders = @{
+        "User-Agent" = "trivuedev-install"
+        "Accept"     = "application/vnd.github+json"
+    }
+    $release = Invoke-RestMethod -Uri "https://api.github.com/repos/$Repo/releases/latest" -Headers $apiHeaders
     if (-not $release.tag_name) {
         throw "Could not resolve latest release tag."
     }
