@@ -78,7 +78,7 @@ Verify the SHA-256 of your archive against `checksums.txt` before running the bi
 ## Usage
 
 ```bash
-# Copy the login command from Trivue Dashboard → Settings → Dev environments
+# Copy the login command from Trivue Dashboard → Developer
 trivuedev login <publicId> <environmentId>
 trivuedev whoami
 trivuedev http://localhost:3000
