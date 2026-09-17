@@ -83,6 +83,10 @@ trivuedev login <publicId> <environmentId>
 trivuedev whoami
 trivuedev http://localhost:3000
 trivuedev http://localhost:3000 --json
+trivuedev https://orashus.com
+trivuedev https://orashus.com --json
+trivuedev https://orashus.com --save
+trivuedev mcp
 trivuedev logout
 ```
 
@@ -104,4 +108,6 @@ Default API: `https://trivue.orashus.com`
 
 ## What this CLI does
 
-Fetches localhost HTML on your machine and submits it to Trivue for inspection. Production Trivue never fetches your localhost URL.
+Fetches localhost HTML on your machine and submits it to Trivue, or inspects a public URL with `POST /api/inspect` (`--save` creates a LocalPreview). Production Trivue never fetches your localhost URL.
+
+Local MCP (stdio): `trivuedev mcp` (pairing required; `inspect_local_url` + `inspect_remote_url`). Without this CLI: [`npx -y @orashus/trivuedev-mcp`](https://github.com/orashus/trivuedev-mcp).
