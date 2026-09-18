@@ -78,8 +78,8 @@ Verify the SHA-256 of your archive against `checksums.txt` before running the bi
 ## Usage
 
 ```bash
-# Copy the login command from Trivue Dashboard → Developer
-trivuedev login <publicId> <environmentId>
+# Copy the secret from Trivue Dashboard → Developer → View
+trivuedev login <secret>
 trivuedev whoami
 trivuedev http://localhost:3000
 trivuedev http://localhost:3000 --json
@@ -94,6 +94,8 @@ Optional API override:
 
 ```bash
 export TRIVUE_API_URL=http://localhost:3000
+# Optional: environment secret (overrides credentials.json)
+export TRIVUE_API_KEY=api_…
 ```
 
 Default API: `https://trivue.orashus.com`
@@ -110,4 +112,4 @@ Default API: `https://trivue.orashus.com`
 
 Fetches localhost HTML on your machine and submits it to Trivue, or inspects a public URL with `POST /api/inspect` (`--save` creates a LocalPreview). Production Trivue never fetches your localhost URL.
 
-Local MCP (stdio): `trivuedev mcp` (pairing required; `inspect_local_url` + `inspect_remote_url`). Without this CLI: [`npx -y @orashus/trivuedev-mcp`](https://github.com/orashus/trivuedev-mcp).
+Local MCP (stdio): `trivuedev mcp` (`TRIVUE_API_KEY` or `credentials.json`; `inspect_local_url` + `inspect_remote_url`) introduced in `v1.1.0`.
